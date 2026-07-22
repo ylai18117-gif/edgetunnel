@@ -5184,23 +5184,20 @@ function 识别运营商(request) {
 
 async function 生成随机IP(request, count = 16, 指定端口 = -1) {
 	const url = new URL(request.url);
-	const currentHost = url.hostname;
 	let proxyList = [];
 	if (typeof env !== 'undefined' && env.PROXYIP) {
 		proxyList = await 整理成数组(env.PROXYIP);
 	}
 	if (!proxyList || proxyList.length === 0) {
 		proxyList = [
-			'162.159.192.1',
-			'104.16.160.1',
-			'104.19.64.1',
-			'162.159.244.172',
-			'104.16.148.136',
-			'104.17.149.136',
-			'104.18.148.136',
-			'172.67.76.205',
-			'icook.hk',
-			currentHost
+			'104.19.45.1',
+			'162.159.193.1',
+			'104.22.45.1',
+			'104.16.200.1',
+			'172.64.0.1',
+			'104.17.200.1',
+			'104.28.1.1',
+			'104.20.0.1'
 		];
 	}
 	const regionalNames = [

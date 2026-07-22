@@ -474,7 +474,6 @@ export default {
     tls: true
     skip-cert-verify: true
     servername: ${hostName}
-    client-fingerprint: chrome
     network: ws
     ws-opts:
       path: "/"

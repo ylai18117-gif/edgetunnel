@@ -451,32 +451,76 @@ export default {
 									return `${协议类型}://00000000-0000-4000-8000-000000000000@${节点地址}:${节点端口}?security=tls&type=${传输协议 + ECHLINK参数}&${域名字段名}=example.com&fp=${config_JSON.Fingerprint}&sni=example.com&${路径字段名}=${encodeURIComponent(传输路径参数值) + TLS分片参数}&encryption=none#${encodeURIComponent(节点备注)}`;
 								}
 							}).filter(item => item !== null).join('\n');
-						} else { // 订阅转换
-							const 订阅转换后端列表 = [
-								config_JSON.订阅转换配置.SUBAPI,
-								'https://api.v1.mk',
-								'https://sub.x27.one'
+						} else if (订阅类型 === 'clash' || url.searchParams.has('clash')) {
+							const regionalNames = [
+								'🇭🇰 香港 01', '🇭🇰 香港 02', '🇯🇵 日本 01', '🇯🇵 日本 02',
+								'🇸🇬 新加坡 01', '🇸🇬 新加坡 02', '🇺🇸 美国 01', '🇺🇸 美国 02',
+								'🇰🇷 韩国 01', '🇰🇷 韩国 02', '🇹🇼 台湾 01', '🇹🇼 台湾 02',
+								'🇬🇧 英国 01', '🇩🇪 德国 01', '🇦🇺 澳大利亚 01', '🇨🇦 加拿大 01'
 							];
-							let 转换成功 = false;
-							for (const subApiHost of 订阅转换后端列表) {
-								if (!subApiHost) continue;
-								try {
-									const 订阅转换URL = `${subApiHost}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 今日订阅转换后端专属TOKEN + '&cnIspCode=' + 识别运营商(request) + (url.searchParams.has('sub') && url.searchParams.get('sub') != '' ? `&sub=${url.searchParams.get('sub')}` : ''))}&config=${encodeURIComponent(config_JSON.订阅转换配置.SUBCONFIG)}&emoji=${config_JSON.订阅转换配置.SUBEMOJI}&list=${config_JSON.订阅转换配置.SUBLIST}&scv=${config_JSON.跳过证书验证}`;
-									const controller = new AbortController();
-									const timer = setTimeout(() => controller.abort(), 3500);
-									const response = await fetch(订阅转换URL, { signal: controller.signal, headers: { 'User-Agent': 'Subconverter for ' + 订阅类型 + ' edge' + 'tunnel (https://github.com/' + 特征码字典[1] + '/edge' + 'tunnel)' } });
-									clearTimeout(timer);
-									if (response.ok) {
-										订阅内容 = await response.text();
-										if (url.searchParams.has('surge') || ua.includes('surge')) 订阅内容 = Surge订阅配置文件热补丁(订阅内容, url.protocol + '//' + url.host + '/sub?token=' + 订阅TOKEN + '&surge', config_JSON);
-										转换成功 = true;
-										break;
-									}
-								} catch (error) { }
+							let proxyIPs = ['104.19.45.1', '162.159.193.1', '104.22.45.1', '104.16.200.1', '172.64.0.1', '104.17.200.1', '104.28.1.1', '104.20.0.1'];
+							if (typeof env !== 'undefined' && env.PROXYIP) {
+								try { proxyIPs = await 整理成数组(env.PROXYIP); } catch (e) {}
 							}
-							if (!转换成功 && !订阅内容) {
-								return new Response('订阅转换异常，请稍后重试', { status: 500 });
-							}
+							const hostName = url.hostname;
+							const uuidVal = userID;
+							const proxiesYaml = regionalNames.map((name, i) => {
+								const serverIp = (proxyIPs[i % proxyIPs.length] || hostName).trim().split('#')[0].split(':')[0];
+								return `  - {name: "${name}", server: ${serverIp}, port: 443, type: vless, uuid: ${uuidVal}, tls: true, skip-cert-verify: false, servername: ${hostName}, client-fingerprint: chrome, network: ws, ws-opts: {path: /, headers: {Host: ${hostName}}}}`;
+							}).join('\n');
+							const proxyNamesYaml = regionalNames.map(name => `      - "${name}"`).join('\n');
+
+							订阅内容 = `port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+external-controller: 127.0.0.1:9090
+
+proxies:
+${proxiesYaml}
+
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - ♻️ 自动选择
+      - 🔯 故障转移
+      - 🔮 负载均衡
+      - DIRECT
+${proxyNamesYaml}
+  - name: ♻️ 自动选择
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    proxies:
+${proxyNamesYaml}
+  - name: 🔯 故障转移
+    type: fallback
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    proxies:
+${proxyNamesYaml}
+  - name: 🔮 负载均衡
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    strategy: round-robin
+    proxies:
+${proxyNamesYaml}
+
+rules:
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,🚀 节点选择
+`;
+						} else { // 其他协议订阅转换
+							const 订阅转换URL = `${config_JSON.订阅转换配置.SUBAPI}/sub?target=${订阅类型}&url=${encodeURIComponent(url.protocol + '//' + url.host + '/sub?target=mixed&token=' + 今日订阅转换后端专属TOKEN)}`;
+							try {
+								const response = await fetch(订阅转换URL, { headers: { 'User-Agent': 'Subconverter edge' + 'tunnel' } });
+								if (response.ok) 订阅内容 = await response.text();
+							} catch (e) {}
 						}
 
 						if (!ua.includes('subconverter') && 用户客户端请求订阅) {

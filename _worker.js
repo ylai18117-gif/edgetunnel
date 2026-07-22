@@ -5184,40 +5184,35 @@ function 识别运营商(request) {
 
 async function 生成随机IP(request, count = 16, 指定端口 = -1) {
 	const url = new URL(request.url);
-	const 查询参数运营商 = String(url.searchParams.get('cnIspCode') || '').toLowerCase();
-	const 运营商文件标识 = ['ct', 'cu', 'cmcc', 'cf'].includes(查询参数运营商) ? 查询参数运营商 : 识别运营商(request);
-	const 运营商名称映射 = {
-		cmcc: 'CF移动优选',
-		cu: 'CF联通优选',
-		ct: 'CF电信优选',
-		cf: 'CF官方优选',
-	};
-	const cidr_url = 运营商文件标识 === 'cf' ? `https://raw.githubusercontent.com/${特征码字典[1]}/${特征码字典[1]}/main/CF-CIDR.txt` : `https://raw.githubusercontent.com/${特征码字典[1]}/${特征码字典[1]}/main/CF-CIDR/${运营商文件标识}.txt`;
-	const cfname = 运营商名称映射[运营商文件标识] || 'CF官方优选';
-	const cfport = [443, 2053, 2083, 2087, 2096, 8443];
-	let cidrList = [];
-	try { const res = await fetch(cidr_url); cidrList = res.ok ? await 整理成数组(await res.text()) : ['104.16.0.0/13'] } catch { cidrList = ['104.16.0.0/13'] }
-
-	const generateRandomIPFromCIDR = (cidr) => {
-		const [baseIP, prefixLength] = cidr.split('/'), prefix = parseInt(prefixLength), hostBits = 32 - prefix;
-		const ipInt = baseIP.split('.').reduce((a, p, i) => a | (parseInt(p) << (24 - i * 8)), 0);
-		const randomOffset = Math.floor(Math.random() * Math.pow(2, hostBits));
-		const mask = (0xFFFFFFFF << hostBits) >>> 0, randomIP = (((ipInt & mask) >>> 0) + randomOffset) >>> 0;
-		return [(randomIP >>> 24) & 0xFF, (randomIP >>> 16) & 0xFF, (randomIP >>> 8) & 0xFF, randomIP & 0xFF].join('.');
-	};
+	let proxyList = [];
+	if (typeof env !== 'undefined' && env.PROXYIP) {
+		proxyList = await 整理成数组(env.PROXYIP);
+	}
+	if (!proxyList || proxyList.length === 0) {
+		proxyList = [
+			'cdn.xgsl.net',
+			'workers.university',
+			'icook.hk',
+			'104.16.148.136',
+			'162.159.38.22',
+			'104.19.51.126',
+			'104.26.2.39',
+			'198.41.223.188'
+		];
+	}
 	const regionalNames = [
 		'🇭🇰 香港 01', '🇭🇰 香港 02', '🇯🇵 日本 01', '🇯🇵 日本 02',
 		'🇸🇬 新加坡 01', '🇸🇬 新加坡 02', '🇺🇸 美国 01', '🇺🇸 美国 02',
 		'🇰🇷 韩国 01', '🇰🇷 韩国 02', '🇹🇼 台湾 01', '🇹🇼 台湾 02',
 		'🇬🇧 英国 01', '🇩🇪 德国 01', '🇦🇺 澳大利亚 01', '🇨🇦 加拿大 01'
 	];
-	const randomIPs = Array.from({ length: count }, (_, index) => {
-		const ip = generateRandomIPFromCIDR(cidrList[Math.floor(Math.random() * cidrList.length)]);
-		const 目标端口 = 指定端口 === -1
-			? cfport[Math.floor(Math.random() * cfport.length)]
-			: 指定端口;
-		const nodeLabel = regionalNames[index % regionalNames.length] || `${cfname}${index + 1}`;
-		return `${ip}:${目标端口}#${nodeLabel}`;
+	const cfport = [443, 8443, 2083, 2087, 2096, 2053];
+	const randomIPs = Array.from({ length: Math.min(count, regionalNames.length) }, (_, index) => {
+		const rawServer = proxyList[index % proxyList.length].trim();
+		const serverHost = rawServer.split('#')[0].split(':')[0];
+		const 目标端口 = 指定端口 === -1 ? (rawServer.includes(':') ? parseInt(rawServer.split(':')[1]) : cfport[index % cfport.length]) : 指定端口;
+		const nodeLabel = regionalNames[index % regionalNames.length];
+		return `${serverHost}:${目标端口}#${nodeLabel}`;
 	});
 	return [randomIPs, randomIPs.join('\n')];
 }

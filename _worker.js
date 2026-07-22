@@ -5184,20 +5184,17 @@ function 识别运营商(request) {
 
 async function 生成随机IP(request, count = 16, 指定端口 = -1) {
 	const url = new URL(request.url);
+	const currentHost = url.hostname;
 	let proxyList = [];
 	if (typeof env !== 'undefined' && env.PROXYIP) {
 		proxyList = await 整理成数组(env.PROXYIP);
 	}
 	if (!proxyList || proxyList.length === 0) {
 		proxyList = [
+			currentHost,
 			'cdn.xgsl.net',
-			'workers.university',
 			'icook.hk',
-			'104.16.148.136',
-			'162.159.38.22',
-			'104.19.51.126',
-			'104.26.2.39',
-			'198.41.223.188'
+			'workers.university'
 		];
 	}
 	const regionalNames = [
@@ -5206,11 +5203,10 @@ async function 生成随机IP(request, count = 16, 指定端口 = -1) {
 		'🇰🇷 韩国 01', '🇰🇷 韩国 02', '🇹🇼 台湾 01', '🇹🇼 台湾 02',
 		'🇬🇧 英国 01', '🇩🇪 德国 01', '🇦🇺 澳大利亚 01', '🇨🇦 加拿大 01'
 	];
-	const cfport = [443, 8443, 2083, 2087, 2096, 2053];
 	const randomIPs = Array.from({ length: Math.min(count, regionalNames.length) }, (_, index) => {
 		const rawServer = proxyList[index % proxyList.length].trim();
 		const serverHost = rawServer.split('#')[0].split(':')[0];
-		const 目标端口 = 指定端口 === -1 ? (rawServer.includes(':') ? parseInt(rawServer.split(':')[1]) : cfport[index % cfport.length]) : 指定端口;
+		const 目标端口 = 443;
 		const nodeLabel = regionalNames[index % regionalNames.length];
 		return `${serverHost}:${目标端口}#${nodeLabel}`;
 	});

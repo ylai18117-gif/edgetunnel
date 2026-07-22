@@ -460,16 +460,16 @@ export default {
 								'🇬🇧 英国 01', '🇩🇪 德国 01', '🇦🇺 澳大利亚 01', '🇨🇦 加拿大 01'
 							];
 							const proxyIPs = [
-								'icook.tw',
-								'time.cloudflare.com',
-								'visa.com.sg',
-								'www.wto.org',
-								'skk.moe',
-								'icook.hk',
-								'csgo.com',
-								'cp.cloudflare.com',
-								'104.29.33.242',
-								'104.16.200.1'
+								'104.19.45.1',
+								'162.159.193.1',
+								'104.22.45.1',
+								'104.16.200.1',
+								'172.64.0.1',
+								'104.17.200.1',
+								'104.28.1.1',
+								'104.20.0.1',
+								'104.16.148.136',
+								'104.17.149.136'
 							];
 							const hostName = url.hostname;
 							const uuidVal = userID;

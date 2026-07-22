@@ -466,7 +466,20 @@ export default {
 							const uuidVal = userID;
 							const proxiesYaml = regionalNames.map((name, i) => {
 								const serverIp = (proxyIPs[i % proxyIPs.length] || hostName).trim().split('#')[0].split(':')[0];
-								return `  - {name: "${name}", server: ${serverIp}, port: 443, type: vless, uuid: ${uuidVal}, tls: true, skip-cert-verify: false, servername: ${hostName}, client-fingerprint: chrome, network: ws, ws-opts: {path: /, headers: {Host: ${hostName}}}}`;
+								return `  - name: "${name}"
+    type: vless
+    server: ${serverIp}
+    port: 443
+    uuid: ${uuidVal}
+    tls: true
+    skip-cert-verify: true
+    servername: ${hostName}
+    client-fingerprint: chrome
+    network: ws
+    ws-opts:
+      path: "/"
+      headers:
+        Host: ${hostName}`;
 							}).join('\n');
 							const proxyNamesYaml = regionalNames.map(name => `      - "${name}"`).join('\n');
 

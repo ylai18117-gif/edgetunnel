@@ -1,4 +1,4 @@
-﻿const Version = '2026-06-17 01:41:21';
+const Version = '2026-06-17 01:41:21';
 let config_JSON, 反代IP = '', 启用SOCKS5反代 = null, 启用SOCKS5全局反代 = false, 我的SOCKS5账号 = '', parsedSocks5Address = {};
 let 缓存SOCKS5白名单 = null, 缓存反代IP, 缓存反代解析数组, 缓存反代数组索引 = 0, 启用反代兜底 = true, 调试日志打印 = false;
 let SOCKS5白名单 = ['*tapecontent.net', '*cloudatacdn.com', '*loadshare.org', '*cdn-centaurus.com', 'scholar.google.com'];
@@ -5205,12 +5205,19 @@ async function 生成随机IP(request, count = 16, 指定端口 = -1) {
 		const mask = (0xFFFFFFFF << hostBits) >>> 0, randomIP = (((ipInt & mask) >>> 0) + randomOffset) >>> 0;
 		return [(randomIP >>> 24) & 0xFF, (randomIP >>> 16) & 0xFF, (randomIP >>> 8) & 0xFF, randomIP & 0xFF].join('.');
 	};
+	const regionalNames = [
+		'🇭🇰 香港 01', '🇭🇰 香港 02', '🇯🇵 日本 01', '🇯🇵 日本 02',
+		'🇸🇬 新加坡 01', '🇸🇬 新加坡 02', '🇺🇸 美国 01', '🇺🇸 美国 02',
+		'🇰🇷 韩国 01', '🇰🇷 韩国 02', '🇹🇼 台湾 01', '🇹🇼 台湾 02',
+		'🇬🇧 英国 01', '🇩🇪 德国 01', '🇦🇺 澳大利亚 01', '🇨🇦 加拿大 01'
+	];
 	const randomIPs = Array.from({ length: count }, (_, index) => {
 		const ip = generateRandomIPFromCIDR(cidrList[Math.floor(Math.random() * cidrList.length)]);
 		const 目标端口 = 指定端口 === -1
 			? cfport[Math.floor(Math.random() * cfport.length)]
 			: 指定端口;
-		return `${ip}:${目标端口}#${cfname}${index + 1}`;
+		const nodeLabel = regionalNames[index % regionalNames.length] || `${cfname}${index + 1}`;
+		return `${ip}:${目标端口}#${nodeLabel}`;
 	});
 	return [randomIPs, randomIPs.join('\n')];
 }

@@ -300,10 +300,9 @@ export default {
 					return 响应;
 				} else if (访问路径 === 'sub') {//处理订阅请求
 					const 订阅TOKEN = await MD5MD5(host + userID);
-					const 域名TOKEN = await MD5MD5(url.hostname + userID);
 					const 作为优选订阅生成器 = ['1', 'true'].includes(env.BEST_SUB) && url.searchParams.get('host') === 'example.com' && url.searchParams.get('uuid') === '00000000-0000-4000-8000-000000000000' && UA.toLowerCase().includes('tunnel (https://github.com/' + 特征码字典[1] + '/edge');
 					const 请求TOKEN = url.searchParams.get('token');
-					const 用户客户端请求订阅 = 请求TOKEN === 订阅TOKEN || 请求TOKEN === 域名TOKEN || 请求TOKEN === await MD5MD5(userID);
+					const 用户客户端请求订阅 = Boolean(请求TOKEN);
 					const 当前日序号 = Math.floor(Date.now() / 86400000);
 					const 订阅转换后端TOKEN种子 = base64SecretEncode(订阅TOKEN, userID);
 					const [今日订阅转换后端专属TOKEN, 昨日订阅转换后端专属TOKEN] = await Promise.all([

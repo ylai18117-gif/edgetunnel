@@ -66,7 +66,7 @@ export async function httpConnect(targetHost, targetPort, initialData, HTTPS代�
 	try {
 		if (HTTPS代理) await socket.opened;
 
-		const auth = username && password ? `Proxy-Authorization: Basic ${btoa...r\n` : '';
+		const auth = username && password ? `Proxy-Authorization: Basic ${btoa(`${username}:${password}`)}\r\n` : '';
 		const request = `CONNECT ${targetHost}:${targetPort} HTTP/1.1\r\nHost: ${targetHost}:${targetPort}\r\n${auth}User-Agent: Mozilla/5.0\r\nConnection: keep-alive\r\n\r\n`;
 		await writer.write(encoder.encode(request));
 		writer.releaseLock();
@@ -141,7 +141,7 @@ export async function httpsConnect(targetHost, targetPort, initialData, TCP连�
 			tlsSocket = await 打开HTTPS代理TLS(true);
 		}
 
-		const auth = username && password ? `Proxy-Authorization: Basic ${btoa...r\n` : '';
+		const auth = username && password ? `Proxy-Authorization: Basic ${btoa(`${username}:${password}`)}\r\n` : '';
 		const request = `CONNECT ${targetHost}:${targetPort} HTTP/1.1\r\nHost: ${targetHost}:${targetPort}\r\n${auth}User-Agent: Mozilla/5.0\r\nConnection: keep-alive\r\n\r\n`;
 		await tlsSocket.write(encoder.encode(request));
 

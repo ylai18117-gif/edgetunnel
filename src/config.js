@@ -121,7 +121,7 @@ export async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0
 		},
 		CF: {
 			Email: null,
-			GlobalAPIKey: ***
+			GlobalAPIKey: null,
 			AccountID: null,
 			APIToken: null,
 			UsageAPI: null,
@@ -226,7 +226,7 @@ export async function 读取config_JSON(env, hostname, userID, UA = "Mozilla/5.0
 		console.error(`读取tg.json出错: ${error.message}`);
 	}
 
-	const 初始化CF_JSON = { Email: null, GlobalAPIKey: *** AccountID: null, APIToken: null, UsageAPI: null };
+	const 初始化CF_JSON = { Email: null, GlobalAPIKey: null, AccountID: null, APIToken: null, UsageAPI: null };
 	config_JSON.CF = { ...初始化CF_JSON, Usage: { success: false, pages: 0, workers: 0, total: 0, max: 100000 } };
 	try {
 		const CF_TXT = await env.KV.get('cf.json');

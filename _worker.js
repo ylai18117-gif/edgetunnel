@@ -534,6 +534,8 @@ ${proxyNamesYaml}
 ${proxyNamesYaml}
 
 rules:
+  - DOMAIN-SUFFIX,pages.dev,DIRECT
+  - DOMAIN-SUFFIX,ccwu.cc,DIRECT
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
   - MATCH,🚀 节点选择

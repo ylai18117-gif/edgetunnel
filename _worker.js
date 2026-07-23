@@ -475,7 +475,15 @@ export default {
 							];
 							const hostName = url.hostname;
 							const uuidVal = userID;
-							const proxiesYaml = regionalNames.map((name, i) => {
+							const awsTokyoNodeYaml = `  - name: "⚡ 🇯🇵 AWS 独享极速 (东京 160ms)"
+    type: hysteria2
+    server: 35.72.92.148
+    port: 443
+    password: MySuperSecretHysteriaPassword2026!
+    sni: bing.com
+    skip-cert-verify: true`;
+
+							const proxiesYaml = awsTokyoNodeYaml + '\n' + regionalNames.map((name, i) => {
 								const serverIp = (proxyIPs[i % proxyIPs.length] || hostName).trim().split('#')[0].split(':')[0];
 								return `  - name: "${name}"
     type: vless
@@ -491,7 +499,7 @@ export default {
       headers:
         Host: ${hostName}`;
 							}).join('\n');
-							const proxyNamesYaml = regionalNames.map(name => `      - "${name}"`).join('\n');
+							const proxyNamesYaml = '      - "⚡ 🇯🇵 AWS 独享极速 (东京 160ms)"\n' + regionalNames.map(name => `      - "${name}"`).join('\n');
 
 							订阅内容 = `port: 7890
 socks-port: 7891
